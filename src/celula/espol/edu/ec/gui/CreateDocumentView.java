@@ -5,7 +5,7 @@
  */
 package celula.espol.edu.ec.gui;
 
-import celula.espol.edu.ec.model.Document;
+import celula.espol.edu.ec.model.DocumentController;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -65,7 +65,7 @@ public class CreateDocumentView extends VBox {
     private void events(){
         generate.setOnAction(e->{
             String text = title.getText();
-            Document doc = new Document(text);
+            DocumentController doc = new DocumentController(text);
             title.setText("");
             Alert alert = new Alert(AlertType.INFORMATION);
             try{

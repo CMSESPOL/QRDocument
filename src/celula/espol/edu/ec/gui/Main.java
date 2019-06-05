@@ -5,6 +5,7 @@
  */
 package celula.espol.edu.ec.gui;
 
+import celula.espol.edu.ec.model.Const;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -14,10 +15,10 @@ import javafx.stage.Stage;
  * @author Kenny Camba
  */
 public class Main extends Application{
-
+    
     @Override
     public void start(Stage stage) throws Exception {
-        Scene scene = new Scene(new CreateDocumentView());
+        Scene scene = new Scene(new QRDocument(stage), Const.MAX_WIDTH, Const.MAX_HEIGHT);
         stage.setScene(scene);
         stage.show();
     }
