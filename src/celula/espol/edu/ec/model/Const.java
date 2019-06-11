@@ -5,6 +5,8 @@
  */
 package celula.espol.edu.ec.model;
 
+import java.io.File;
+import java.nio.file.Paths;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 
@@ -21,6 +23,9 @@ public class Const {
     public static final double MAX_Y = VISUAL_BOUNDS.getMaxY();
     public static final double MIN_X = VISUAL_BOUNDS.getMinX();
     public static final double MIN_Y = VISUAL_BOUNDS.getMinY();
+    
+    public static final String PATH = new File("").getAbsolutePath();
+    public static final String PACKAGE = Paths.get("celula", "espol", "edu", "ec").toString();
     
     private Const(){
         //

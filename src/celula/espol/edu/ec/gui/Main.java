@@ -18,6 +18,7 @@ public class Main extends Application{
     
     @Override
     public void start(Stage stage) throws Exception {
+        stage.setMaximized(true); 
         Scene scene = new Scene(new QRDocument(stage), Const.MAX_WIDTH, Const.MAX_HEIGHT);
         stage.setScene(scene);
         stage.show();

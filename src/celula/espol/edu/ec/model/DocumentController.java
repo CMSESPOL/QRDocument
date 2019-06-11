@@ -5,14 +5,25 @@
  */
 package celula.espol.edu.ec.model;
 
-import java.awt.Desktop;
+//import java.awt.Desktop;
+//import java.io.File;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.hwpf.usermodel.Range;
+//import java.math.BigInteger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.TextAlignment;
@@ -20,17 +31,17 @@ import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBorder;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
+//import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBorder;
+//import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
 
 /**
  *
  * @author Kenny Camba
  */
 public class DocumentController {
-    private String title;
+    private final String title;
     //private String content;
-    private XWPFDocument doc;
+    private final XWPFDocument doc;
     private XWPFParagraph titleDoc;
     private XWPFParagraph paragraph;
     
@@ -63,10 +74,11 @@ public class DocumentController {
         r1.addCarriageReturn();
     }
     
-    public void generateDocument()throws FileNotFoundException, IOException{
+    public Document generateDocument()throws FileNotFoundException, IOException{
         try(FileOutputStream word = new FileOutputStream(title+".docx")){
             doc.write(word);
             word.close();
+            return new Document(title, new File(title+".docx"));
             //Desktop.getDesktop().open(new File(title+".docx "));
         }catch(Exception ex){
             throw ex;
@@ -78,9 +90,9 @@ public class DocumentController {
         img.setAlignment(ParagraphAlignment.RIGHT);
         img.setVerticalAlignment(TextAlignment.TOP);
         XWPFRun run = img.createRun();
-        FileInputStream is = new FileInputStream(file);
-        run.addPicture(is, XWPFDocument.PICTURE_TYPE_PNG, file, Units.toEMU(100), Units.toEMU(100)); //200x200 pixeles
-        is.close();
+        try (FileInputStream is = new FileInputStream(file)) {
+            run.addPicture(is, XWPFDocument.PICTURE_TYPE_PNG, file, Units.toEMU(100), Units.toEMU(100)); //200x200 pixeles
+        } //200x200 pixeles
         return true;
     }
     
@@ -91,6 +103,31 @@ public class DocumentController {
     @Override
     public String toString(){
         return this.getName();
+    }
+    
+    public void generatePDF(Document doc){
+        try {
+            POIFSFileSystem word = new POIFSFileSystem(doc.getDirectory());
+            HWPFDocument hwd = new HWPFDocument(word);
+            WordExtractor we = new WordExtractor(hwd);
+            OutputStream file = new FileOutputStream(new File(doc.getName()+".pdf"));
+            com.lowagie.text.Document docu = new com.lowagie.text.Document();
+            PdfWriter writer = PdfWriter.getInstance(docu, file);
+            Range range = hwd.getRange();
+            docu.open();
+            writer.setPageEmpty(true);  
+            docu.newPage();  
+            writer.setPageEmpty(true);
+            String[] paragraphs = we.getParagraphText();  
+            for (int i = 0; i < paragraphs.length; i++) {  
+                org.apache.poi.hwpf.usermodel.Paragraph pr = range.getParagraph(i);
+                paragraphs[i] = paragraphs[i].replaceAll("\\cM?\r?\n", "");  
+                docu.add(new Paragraph(paragraphs[i]));
+            }  
+            //PdfWriter writer
+        } catch (IOException | DocumentException ex) {
+            Logger.getLogger(DocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
 }
